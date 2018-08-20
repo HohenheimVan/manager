@@ -23,7 +23,8 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^add/', Add.as_view()),
     url(r'^', include('fleet.urls')),
-
 ]
 
-urlpatterns = format_suffix_patterns(urlpatterns)
+urlpatterns += [
+    url(r'^api-auth/', include('rest_framework.urls')),
+]

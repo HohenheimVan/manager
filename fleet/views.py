@@ -3,10 +3,7 @@ import csv
 from django.contrib.auth.models import User
 from django.shortcuts import render
 from django.views.generic.base import View
-from rest_framework.decorators import api_view
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView, RetrieveAPIView
-from rest_framework.response import Response
-from rest_framework.reverse import reverse
+from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
 
 from fleet.serializers import NewCarSerializer, CarsSerializer, UserSerializer
 from fleet.models import CarsModel, NewCarModel
@@ -40,49 +37,32 @@ class Add(View):
         return render(request, "addCars.html", {"message": "dodano"})
 
 
-class NewCarListView(ListCreateAPIView):
-    queryset = NewCarModel.objects.all()
-    serializer_class = NewCarSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
-
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
-
-
-class NewCarDetailView(RetrieveUpdateDestroyAPIView):
+class NewCarViewSet(ModelViewSet):
+    """
+    This viewset automatically provides `list`, `create`, `retrieve`,
+    `update` and `destroy` actions.
+    """
     queryset = NewCarModel.objects.all()
     serializer_class = NewCarSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
 
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
-class CarsListView(ListCreateAPIView):
+
+
+class CarsViewSet(ModelViewSet):
     queryset = CarsModel.objects.all()
     serializer_class = CarsSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
 
-class CarsDetailView(RetrieveUpdateDestroyAPIView):
-    queryset = CarsModel.objects.all()
-    serializer_class = CarsSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
-
-
-class UserList(ListAPIView):
+class UserViewSet(ReadOnlyModelViewSet):
+    """
+    This viewset automatically provides `list` and `detail` actions.
+    """
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
-
-class UserDetail(RetrieveAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-@api_view(['GET'])
-def api_root(request, format=None):
-    return Response({
-        'users': reverse('user-list', request=request, format=format),
-        'cars': reverse('cars-list', request=request, format=format),
-        'new_car': reverse('new-car-list', request=request, format=format)
-    })

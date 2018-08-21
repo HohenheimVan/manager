@@ -15,7 +15,7 @@ class NewCarSerializer(serializers.HyperlinkedModelSerializer):
     car = serializers.HyperlinkedRelatedField(view_name="cars-detail", queryset=CarsModel.objects.all())
     class Meta:
         model = NewCarModel
-        fields = ("id", "registration_num", "max_seats", "year", "car", "car_class", "hybrid_or_electric", "owner")
+        fields = ("id", "registration_num", "max_seats", "year", "car_class", "hybrid_or_electric", 'car', "owner")
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):

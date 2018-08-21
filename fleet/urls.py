@@ -1,17 +1,27 @@
-from django.conf.urls import url
-from rest_framework.urlpatterns import format_suffix_patterns
+from django.conf.urls import url, include
+from rest_framework.routers import DefaultRouter
+from fleet.views import NewCarViewSet, CarsViewSet, UserViewSet
 
-from fleet.views import NewCarListView, NewCarDetailView, CarsListView, CarsDetailView, UserDetail, UserList, api_root
+cars_detail = CarsViewSet.as_view({
+    'get': 'retrieve',
+    'put': 'update',
+    'patch': 'partial_update',
+    'delete': 'destroy'
+})
+new_car_detail = NewCarViewSet.as_view({
+    'get': 'retrieve',
+    'put': 'update',
+    'patch': 'partial_update',
+    'delete': 'destroy'
+})
+router = DefaultRouter()
+router.register(r'new-car', NewCarViewSet)
+router.register(r'cars', CarsViewSet)
+router.register(r'users', UserViewSet)
 
 urlpatterns = [
-
-    url(r'^api/(?P<pk>\d+)$', NewCarDetailView.as_view(), name="new-car-detail"),
-    url(r'^api/$', NewCarListView.as_view(), name="new-car-list"),
-    url(r'^api/cars/$', CarsListView.as_view(), name="cars-list"),
-    url(r'^api/cars/(?P<pk>\d+)$', CarsDetailView.as_view(), name="cars-detail"),
-    url(r'^api/users/$', UserList.as_view(), name="user-list"),
-    url(r'^api/users/(?P<pk>\d+)$', UserDetail.as_view(), name="user-detail"),
-    url(r'^$', api_root),
+    url(r'^api/', include(router.urls)),
+    url(r'^api/cars/(?P<pk>\d+)$', cars_detail, name="cars-detail"),
+    url(r'^api/new-car/(?P<pk>\d+)$', new_car_detail, name="new-car-detail"),
 
 ]
-
